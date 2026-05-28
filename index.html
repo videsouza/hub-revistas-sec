@@ -59,16 +59,20 @@
             display: flex;
             gap: 1rem;
             margin-bottom: 2rem;
+            flex-wrap: wrap; /* Garante que os itens desçam uma linha se não couberem (ótimo para celulares) */
         }
 
         select {
             flex: 1;
+            min-width: 0; /* Regra de ouro: impede que o select quebre os limites do painel */
             padding: 0.75rem;
             border: 1px solid var(--borda);
             border-radius: 4px;
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
             background-color: white;
+            text-overflow: ellipsis; /* Adiciona "..." caso o texto precise ser cortado visualmente */
+            overflow: hidden;
         }
 
         select:disabled {
