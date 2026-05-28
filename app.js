@@ -55,7 +55,7 @@ selectRevista.addEventListener('change', async (e) => {
         edicoes.forEach(edicao => {
             const option = document.createElement('option');
             option.value = edicao.id;
-            option.textContent = `${edicao.volume}, ${edicao.numero} (${edicao.ano})`;
+            option.textContent = edicao.volume;
             selectEdicao.appendChild(option);
         });
         selectEdicao.disabled = false;
