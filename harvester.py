@@ -48,11 +48,10 @@ for nome_revista, dados in revistas_alvo.items():
         revista_id = res_revista.data[0]['id']
 
     edicoes_cadastradas = {}
-    edicoes_vistas_nesta_execucao = set() # Memória para contar o limite de 10
     artigos_inseridos = 0
 
     try:
-        # Busca apenas registros publicados a partir de 1º de janeiro de 2025
+        # Pede ao protocolo tudo o que foi modificado no sistema desde jan/2025
         records = sickle.ListRecords(metadataPrefix='oai_dc', ignore_deleted=True, from_='2025-01-01')
         
         for record in records:
@@ -69,17 +68,21 @@ for nome_revista, dados in revistas_alvo.items():
             if not titulo or not chave_edicao:
                 continue
             
-            # 2. Lógica do Limite de 10 Edições
-            if chave_edicao not in edicoes_vistas_nesta_execucao:
-               edicoes_vistas_nesta_execucao.add(chave_edicao)
+            # Extrai o ano isolado da publicação
+            ano = int(data_pub[:4]) if data_pub and data_pub[:4].isdigit() else 0
+            
+            # --- TRAVA IMPLACÁVEL ---
+            # Ignora sumariamente qualquer artigo cujo ano real seja inferior a 2025
+            if ano < 2025:
+                continue
+            # ------------------------
 
-            # 3. Gerenciamento da Edição
+            # 2. Gerenciamento da Edição
             if chave_edicao not in edicoes_cadastradas:
                 res_ed = supabase.table('edicoes').select('id').eq('volume', chave_edicao).eq('revista_id', revista_id).execute()
                 if res_ed.data:
                     edicoes_cadastradas[chave_edicao] = res_ed.data[0]['id']
                 else:
-                    ano = int(data_pub[:4]) if data_pub and data_pub[:4].isdigit() else 0
                     res_nova_ed = supabase.table('edicoes').insert({
                         "revista_id": revista_id,
                         "volume": chave_edicao,
@@ -87,11 +90,11 @@ for nome_revista, dados in revistas_alvo.items():
                         "ano": ano
                     }).execute()
                     edicoes_cadastradas[chave_edicao] = res_nova_ed.data[0]['id']
-                    print(f"Nova edição mapeada: {chave_edicao}")
+                    print(f"Nova edição contemporânea mapeada: {chave_edicao}")
 
             edicao_id = edicoes_cadastradas[chave_edicao]
 
-            # 4. Inserção do Artigo
+            # 3. Inserção do Artigo
             res_art = supabase.table('artigos').select('id').eq('titulo', titulo).eq('edicao_id', edicao_id).execute()
             if not res_art.data:
                 supabase.table('artigos').insert({
@@ -104,8 +107,8 @@ for nome_revista, dados in revistas_alvo.items():
                 artigos_inseridos += 1
                 
     except Exception as e:
-        print(f"Erro ao processar o feed de {nome_revista}: {e}")
+        print(f"Erro ou fim de registros para {nome_revista}: {e}")
         
-    print(f"Finalizado para {nome_revista}: {artigos_inseridos} novos artigos processados nas 10 primeiras edições.")
+    print(f"Finalizado para {nome_revista}: {artigos_inseridos} novos artigos reais processados a partir de 2025.")
 
 print("\n=== Todas as revistas processadas com sucesso! ===")
