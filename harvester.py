@@ -52,7 +52,8 @@ for nome_revista, dados in revistas_alvo.items():
     artigos_inseridos = 0
 
     try:
-        records = sickle.ListRecords(metadataPrefix='oai_dc', ignore_deleted=True)
+        # Busca apenas registros publicados a partir de 1º de janeiro de 2025
+        records = sickle.ListRecords(metadataPrefix='oai_dc', ignore_deleted=True, from_='2025-01-01')
         
         for record in records:
             metadata = record.metadata
