@@ -1,0 +1,29 @@
+name: Executar Colheita OAI-PMH
+
+on:
+  schedule:
+    # Roda automaticamente todo domingo às 23:00 (Horário de Brasília)
+    - cron: '0 2 * * 0'
+  workflow_dispatch: # Adiciona um botão para podermos rodar manualmente quando quisermos
+
+jobs:
+  rodar-harvester:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar o Python no servidor virtual
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar bibliotecas necessárias
+        run: pip install sickle supabase
+
+      - name: Executar o Script Harvester
+        env:
+          # Passando os Secrets protegidos do GitHub para o script em execução
+          SUPABASE_URL: ${{ secrets::SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets::SUPABASE_ANON_KEY }}
+        run: python harvester.py
