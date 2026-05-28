@@ -71,10 +71,7 @@ for nome_revista, dados in revistas_alvo.items():
             
             # 2. Lógica do Limite de 10 Edições
             if chave_edicao not in edicoes_vistas_nesta_execucao:
-                if len(edicoes_vistas_nesta_execucao) >= 10:
-                    print(f"[!] Limite de 10 edições atingido para {nome_revista}.")
-                    break # Interrompe a colheita desta revista e vai para a próxima
-                edicoes_vistas_nesta_execucao.add(chave_edicao)
+               edicoes_vistas_nesta_execucao.add(chave_edicao)
 
             # 3. Gerenciamento da Edição
             if chave_edicao not in edicoes_cadastradas:
